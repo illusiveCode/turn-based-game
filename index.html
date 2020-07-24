@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
+      rel="stylesheet"
+    />
+    <title>AD: Board Game</title>
+  </head>
+  <body>
+    <h1 class="game-title">Avengers Dissembled</h1>
+
+    <div class="buttons">
+      <button class="new-game btns" id="newGame">
+        New Game
+      </button>
+      <button class="rules btns" id="rules">Rules</button>
+    </div>
+    <div class="game">
+      <aside id="player1" class="sidebar">
+        <div>
+          <span class="ironman"
+            ><img class="avatar" src="images/ironman2.png"
+          /></span>
+          <h4>&nbsp;</h4>
+        </div>
+        <div class="box">
+          <h4>Health</h4>
+          <span id="health1">0</span>
+        </div>
+        <div class="box">
+          <img src="images/soul-stone3.png" alt="" />
+          <span class="value" id="damage1">0</span>
+        </div>
+        <div class="box">
+          <img src="images/shield.png" alt="" />
+          <span class="value" id="shield1">protected</span>
+        </div>
+      </aside>
+      <div class="grid-container" id="game-board"></div>
+      <aside id="player2" class="sidebar">
+        <div>
+          <span class="america"
+            ><img class="avatar" src="images/Captain_America.png"
+          /></span>
+          <h4>&nbsp;</h4>
+        </div>
+        <div class="box">
+          <h4>Health</h4>
+          <span id="health2">0</span>
+        </div>
+        <div class="box">
+          <img src="images/soul-stone3.png" alt="" />
+          <span class="value" id="damage2">0</span>
+        </div>
+        <div class="box">
+          <img src="images/shield.png" alt="" />
+          <span class="value" id="shield2">Unprotected</span>
+        </div>
+      </aside>
+    </div>
+
+    <div id="rulesModal">
+      <div class="content">
+        <button id="closeRules">&times;</button>
+        <h1>Game Rules</h1>
+        <ul>
+          <li>
+            Move a maximum of 3 spaces horizontally or vertically.
+          </li>
+          <li>Pick up weapons to increase damage stats.</li>
+          <li>
+            Move to an adjacent square to the opponent to begin fight sequence.
+          </li>
+          <li>Choose to attack or defend.</li>
+          <li>
+            Who ever has their health drop to 0 will lose the game.
+          </li>
+          <h3 class="gl">Good Luck!</h3>
+        </ul>
+      </div>
+    </div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+    <script type="text/javascript" src="app.js"></script>
+  </body>
+</html>
