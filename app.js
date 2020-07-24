@@ -57,21 +57,15 @@ function renderWeapons() {
   );
   let weapon2 = new Weapon(
     "soulstone",
-    `<img src="images/soul-stone3.png" alt="soulstone"/>`,
+    `<img src="images/soul-stone.png" alt="soulstone"/>`,
     10
   );
   let weapon3 = new Weapon(
     "powerstone",
-    `<img src="images/power.png" alt="powerstone"/>`,
+    `<img src="images/power-stone.png" alt="powerstone"/>`,
     10
   );
-  // let weapon4 = new Weapon(
-  //   "mjolnir",
-  //   `<img src="images/thor1.png" alt="mjolnir"/>`,
-  //   10
-  // );
-  //let weapon5 = new Weapon("sunflower", "", 10)
-  //weapons.push(weapon5)
+
   weapons.push(weapon1);
   weapons.push(weapon2);
   weapons.push(weapon3);
