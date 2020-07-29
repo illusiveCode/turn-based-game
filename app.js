@@ -9,13 +9,28 @@ $("#closeRules").on("click", function () {
 
 //creating the grid using data- attributes
 function gameboard() {
-  let squares = "";
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      squares += `<div class='grid-item' data-row=${i} data-column=${j}></div>`;
+  let col = 0;
+  let row = 1;
+
+  for (let column = 0; column < 81; column++) {
+    col++;
+    document.querySelector(
+      "#game-board"
+    ).innerHTML += `<div class='grid-item' data-row=${row} data-column=${col}></div>`;
+
+    if (col === 9) {
+      col = 0;
+      row++;
     }
   }
-  $("#game-board").html(squares);
+
+  // let squares = "";
+  // for (let i = 0; i < 9; i++) {
+  //   for (let j = 0; j < 9; j++) {
+  //     squares += `<div class='grid-item' data-row=${i} data-column=${j}></div>`;
+  //   }
+  // }
+  // $("#game-board").html(squares);
 }
 gameboard();
 
@@ -31,9 +46,10 @@ function Weapon(name, image, power) {
   this.power = power;
 }
 
-function Player(name) {
+function Player(name, image, lastId = 0) {
+  this.id = lastId + 1;
   this.name = name;
-  this.image = '<img src="images/ironman.png"</img>';
+  this.image = image;
   this.weapon = {
     name: "gauntlet",
   };
@@ -44,8 +60,13 @@ function Player(name) {
   };
 }
 
-let player1 = new Player("squirel");
-let player2 = new Player("chimp");
+let player1 = new Player("squirel", '<img src="images/ironman.png" />');
+let player2 = new Player(
+  "chimp",
+  '<img src="images/cap-shield.png" />',
+  player1.id
+);
+
 let currentPlayer = player1;
 
 const weapons = [];
@@ -100,20 +121,35 @@ function placeItem(cls, item) {
 }
 
 function placePlayer(player) {
-  let row = randomNumber();
-  let column = randomNumber();
-  let randomSquare = $(`[data-row=${row}][data-column=${column}]`);
-  let isOccupied = randomSquare.hasClass("occupied");
+  const gridSquares = document.querySelectorAll(".grid-item");
+  const randomSquare = Math.floor(Math.random() * gridSquares.length);
+
+  const { row, column } = gridSquares[randomSquare].dataset;
+
+  const randomElm = document.querySelector(
+    `[data-row="${row}"][data-column="${column}"]`
+  );
+
+  let isOccupied = randomElm.classList.contains("occupied");
   if (isOccupied) {
     console.log("square is occupied, player");
     return placePlayer(player);
   } else {
-    player["location"] = {
-      row: row,
-      column: column,
-    };
-    randomSquare.html(player);
-    return randomSquare.addClass(player["name"]).addClass("occupied");
+    if (player.id === 1) {
+      player1.location = {
+        row,
+        column,
+      };
+    } else {
+      player2.location = {
+        row,
+        column,
+      };
+    }
+    console.log(player1, player2);
+
+    randomElm.innerHTML = player.image;
+    return randomElm.classList.add(player["name"], "occupied");
   }
 }
 
@@ -124,8 +160,8 @@ function renderBarriers() {
 }
 
 function renderPlayers() {
-  placePlayer('<img src="images/ironman.png"</img>');
-  placePlayer('<img src="images/cap-shield.png"</img>');
+  placePlayer(player1);
+  placePlayer(player2);
 }
 
 function detectTurn() {
@@ -224,6 +260,34 @@ function movesCheck(squareRow, squareColumn, playerRow, playerColumn) {
   return true;
 }
 
+function movesCheck2() {
+  const { row, column } = currentPlayer.location;
+  console.log({ row, column, currentPlayer });
+  const north1 = document.querySelector(
+    `[data-column="${column}"][data-row="${row - 1}"]`
+  );
+  const north2 = document.querySelector(
+    `[data-column="${column}"][data-row="${row - 2}"]`
+  );
+  const north3 = document.querySelector(
+    `[data-column="${column}"][data-row="${row - 3}"]`
+  );
+
+  console.log(north1);
+
+  if (!north1.classList.contains("occupied")) {
+    north1.classList.add("highlight");
+
+    if (!north2.classList.contains("occupied")) {
+      north2.classList.add("highlight");
+
+      if (!north3.classList.contains("occupied")) {
+        north3.classList.add("highlight");
+      }
+    }
+  }
+}
+
 // //weaponCheck
 function weaponsCheck(rowSquare, columnSquare) {
   //console.log(weapons);
@@ -294,7 +358,7 @@ function playersFight() {
       opponent = player1;
     }
     // if player2defends === true {playe2life -= player1.attack / 2}
-    // let attackOrDefend = prompt("To attack, press 1 to defend, press 2");
+    let attackOrDefend = prompt("To attack, press 1 to defend, press 2");
     if (attackOrDefend == 1) {
       console.log("fightOrDefend", "player has chosen to attack");
       opponent.lifePoints = opponent.lifePoints - 10;
@@ -309,10 +373,14 @@ function playersFight() {
     }
     // if player2defends === false {player1life -= player2.attack}
 
-    // when a players health points drop to 0 or below, declare winner
-    // if (player2life <= 0) {
-    //alert('Player 1 wins')};
-    //if (player1life <= 0) {alert('Player 2 Wins')};
+    //when a players health points drop to 0 or below, declare winner
+
+    if (player2life <= 0) {
+      alert("Player 1 wins");
+    }
+    if (player1life <= 0) {
+      alert("Player 2 Wins");
+    }
   } else {
     //console.log('no threat found');
   }
@@ -338,7 +406,7 @@ function movePlayer(rowSquare, columnSquare) {
     playerRow,
     playerColumn
   );
-  //console.log(isMoveDisallowed);
+  console.log(isMoveDisallowed);
   if (isBlocked || isMoveDisallowed) {
     //console.log('insideCheck');
     alert("cannot move there");
@@ -365,6 +433,7 @@ function movePlayer(rowSquare, columnSquare) {
 renderBarriers();
 renderWeapons();
 renderPlayers();
+movesCheck2();
 
 $(document).ready(function () {
   $("#game-board").on("click", function () {
