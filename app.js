@@ -60,9 +60,9 @@ function Player(name, image, lastId = 0) {
   };
 }
 
-let player1 = new Player("squirel", '<img src="images/ironman.png" />');
+let player1 = new Player("ironman", '<img src="images/ironman.png" />');
 let player2 = new Player(
-  "chimp",
+  "captain-america",
   '<img src="images/cap-shield.png" />',
   player1.id
 );
@@ -99,7 +99,7 @@ function renderWeapons() {
 function isPlayer(item) {
   //if player then return true
   //if not a player then return false
-  if (item === "chimp" || item === "squirel") {
+  if (item === "ironman" || item === "captain-america") {
     return true;
   } else {
     return false;
@@ -272,8 +272,25 @@ function movesCheck2() {
   const north3 = document.querySelector(
     `[data-column="${column}"][data-row="${row - 3}"]`
   );
+  const east1 = document.querySelector(
+    `[data-column="${column + 1}"][data-row="${row}"]`
+  );
+  const east2 = document.querySelector(
+    `[data-column="${column + 2}"][data-row="${row}"]`
+  );
+  const east3 = document.querySelector(
+    `[data-column="${column + 3}"][data-row="${row}"]`
+  );
 
   console.log(north1);
+  // if (!east1.classList.contains("occupied")) {
+  //   east1.classList.add("highlight");
+  // }
+  // if (!east2.classList.contains("occupied")) {
+  //   east2.classList.add("highlight");
+  // }
+  // if (!east3.classList.contains("occupied")) {
+  //   east3.classList.add("highlight");
 
   if (!north1.classList.contains("occupied")) {
     north1.classList.add("highlight");
