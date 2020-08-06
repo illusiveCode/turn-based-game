@@ -132,7 +132,6 @@ function placePlayer(player) {
 
   let isOccupied = randomElm.classList.contains("occupied");
   if (isOccupied) {
-    console.log("square is occupied, player");
     return placePlayer(player);
   } else {
     if (player.id === 1) {
@@ -146,7 +145,7 @@ function placePlayer(player) {
         column,
       };
     }
-    console.log(player1, player2);
+    // console.log(player1, player2);
 
     randomElm.innerHTML = player.image;
     return randomElm.classList.add(player["name"], "occupied");
@@ -282,7 +281,6 @@ function movesCheck2() {
     `[data-column="${column + 3}"][data-row="${row}"]`
   );
 
-  console.log(north1);
   // if (!east1.classList.contains("occupied")) {
   //   east1.classList.add("highlight");
   // }

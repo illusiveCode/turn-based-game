@@ -1,0 +1,24 @@
+{
+  "name": "turn-based-game",
+  "version": "1.0.0",
+  "description": "A turn based board game made with HTML, CSS, JavaScript and jQuery.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhraza29/turn-based-game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mhraza29/turn-based-game/issues"
+  },
+  "homepage": "https://github.com/mhraza29/turn-based-game#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}
