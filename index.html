@@ -14,9 +14,7 @@
     <h1 class="game-title">Avengers Dissembled</h1>
 
     <div class="buttons">
-      <button class="new-game btns" id="newGame">
-        New Game
-      </button>
+      <button class="new-game btns" id="newGame">New Game</button>
       <button class="rules btns" id="rules">Rules</button>
     </div>
     <div class="game">
@@ -25,14 +23,16 @@
           <span class="ironman"
             ><img class="avatar" src="./images/ironman2.png"
           /></span>
-          <h4 class="box">Player 1</h4>
+          <h4 id="name1" class="box">Player 1</h4>
         </div>
         <div class="box">
           <h4>Health</h4>
           <span id="health1">0</span>
         </div>
         <div class="box">
-          <img src="./images/space-stone.png" alt="" />
+          <div id="weapon1">
+            <img src="./images/space-stone.png" alt="" />
+          </div>
           <span class="value" id="damage1">0</span>
         </div>
         <div class="box">
@@ -46,14 +46,16 @@
           <span class="america"
             ><img class="avatar" src="./images/Captain_America.png"
           /></span>
-          <h4 class="box">Player 2</h4>
+          <h4 id="name2" class="box">Player 2</h4>
         </div>
         <div class="box">
           <h4>Health</h4>
           <span id="health2">0</span>
         </div>
         <div class="box">
-          <img src="./images/space-stone.png" alt="" />
+          <div id="weapon2">
+            <img src="./images/space-stone.png" alt="" />
+          </div>
           <span class="value" id="damage2">0</span>
         </div>
         <div class="box">
@@ -68,17 +70,13 @@
         <button id="closeRules">&times;</button>
         <h1>Game Rules</h1>
         <ul>
-          <li>
-            Move a maximum of 3 spaces horizontally or vertically.
-          </li>
+          <li>Move a maximum of 3 spaces horizontally or vertically.</li>
           <li>Pick up weapons to increase damage stats.</li>
           <li>
             Move to an adjacent square to the opponent to begin fight sequence.
           </li>
           <li>Choose to attack or defend.</li>
-          <li>
-            Who ever has their health drop to 0 will lose the game.
-          </li>
+          <li>Who ever has their health drop to 0 will lose the game.</li>
           <h3 class="gl">Good Luck!</h3>
         </ul>
       </div>

@@ -1,3 +1,5 @@
+import { weapon0 } from "./assets";
+
 class Player {
   constructor(name, image, lastId = 0) {
     this.id = lastId + 1;
@@ -11,13 +13,15 @@ class Player {
       name: this.name,
       image: `<img src="${this.image}" alt="${this.name}" />`,
       weapon: {
-        name: "gauntlet",
+        image: `<img src="${weapon0}" alt="" data-damage="10" />`,
+        damage: 10,
       },
       lifePoints: 100,
       location: {
         row: 0,
         column: 0,
       },
+      shield: false,
     };
   };
 }

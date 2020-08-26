@@ -89,7 +89,13 @@ body {
 
 aside {
   width: 150px;
-  background-color: #eee;
+  background: rgb(40, 43, 41);
+  background: linear-gradient(
+    0deg,
+    rgba(40, 43, 41, 1) 0%,
+    rgba(99, 111, 104, 1) 44%,
+    rgba(198, 199, 111, 0.2721463585434174) 100%
+  );
   letter-spacing: 2px;
   border-radius: 10px;
 }
@@ -110,7 +116,7 @@ aside {
   border: 2px solid black;
   width: 700px;
 }
-.grid-item {
+.grid-container > div {
   outline: 1px solid rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
@@ -118,10 +124,10 @@ aside {
   align-content: center;
   background-color: tan;
 }
-.grid-item.highlight {
+.grid-container > div.highlight {
   box-shadow: inset 0 0 5px red;
 }
-.grid-item img {
+.grid-container > div img {
   width: 90%;
   height: 90%;
   object-fit: contain;
