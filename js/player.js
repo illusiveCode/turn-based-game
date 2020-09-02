@@ -7,6 +7,7 @@ class Player {
     this.image = image;
   }
 
+  // Generating players with their inital stats
   generate = () => {
     return {
       id: this.id,

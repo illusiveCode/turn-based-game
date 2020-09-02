@@ -6,7 +6,7 @@ class Game {
     this.gridSquares = document.querySelectorAll(".grid-item");
     this.currentPlayer = null;
   }
-
+  // creating the function to reset the game
   reset = () => {
     this.gridSquares.forEach((tile) => {
       tile.innerHTML = "";
@@ -32,6 +32,7 @@ class Game {
     });
   };
 
+  // calling function to reset the game
   newGame = () => {
     this.reset();
 
@@ -52,10 +53,9 @@ class Game {
     this.players.map((player) => {
       this.placeItem("player", player);
     });
-
-    console.log(this.players);
   };
 
+  // creating the map of the game
   static generateMap = () => {
     let col = 0;
     let row = 1;
@@ -88,7 +88,7 @@ class Game {
       this.placeItem(cls, item);
     } else {
       if (cls === "player") {
-        this.players[item.id - 1].location = { col: column, row };
+        this.players[item.id - 1].location = { column, row };
 
         this.gridSquares[randomSquare].innerHTML = item.image;
       } else {
@@ -98,50 +98,89 @@ class Game {
     }
   };
 
+  // highlight tiles for valid moves for current player
   highlightMoves = () => {
-    const moves = (direction, operator) => {
-      const { row, column } = this.currentPlayer.location;
-      console.log({ row, column, currentPlayer });
-      const north1 = document.querySelector(
-        `[data-column="${column}"][data-row="${row - 1}"]`
-      );
-      const north2 = document.querySelector(
-        `[data-column="${column}"][data-row="${row - 2}"]`
-      );
-      const north3 = document.querySelector(
-        `[data-column="${column}"][data-row="${row - 3}"]`
-      );
-      const east1 = document.querySelector(
-        `[data-column="${column + 1}"][data-row="${row}"]`
-      );
-      const east2 = document.querySelector(
-        `[data-column="${column + 2}"][data-row="${row}"]`
-      );
-      const east3 = document.querySelector(
-        `[data-column="${column + 3}"][data-row="${row}"]`
-      );
-
-      // if (!east1.classList.contains("occupied")) {
-      //   east1.classList.add("highlight");
-      // }
-      // if (!east2.classList.contains("occupied")) {
-      //   east2.classList.add("highlight");
-      // }
-      // if (!east3.classList.contains("occupied")) {
-      //   east3.classList.add("highlight");
-
-      if (!north1.classList.contains("occupied")) {
-        north1.classList.add("highlight");
-
-        if (!north2.classList.contains("occupied")) {
-          north2.classList.add("highlight");
-
-          if (!north3.classList.contains("occupied")) {
-            north3.classList.add("highlight");
-          }
-        }
+    const { row, column } = this.currentPlayer.location;
+    console.log("highlightMoves", row, column);
+    const element = (direction, num) => {
+      switch (direction) {
+        case "north":
+          return document.querySelector(
+            `[data-row="${row - num}"][data-column="${column}"]`
+          );
+        case "south":
+          return document.querySelector(
+            `[data-row="${Number(row) + num}"][data-column="${column}"]`
+          );
+        case "west":
+          return document.querySelector(
+            `[data-row="${row}"][data-column="${Number(column) - num}"]`
+          );
+        case "east":
+          return document.querySelector(
+            `[data-row="${row}"][data-column="${Number(column) + num}"]`
+          );
+        default:
+          break;
       }
     };
+
+    const availability = (direction) => {
+      const move1 = element(direction, 1);
+      const move2 = element(direction, 2);
+      const move3 = element(direction, 3);
+
+      if (!move1) return;
+      if (
+        move1.classList.contains("barrier") ||
+        move1.classList.contains("player")
+      )
+        return;
+      move1.classList.add("highlight");
+      move1.addEventListener("click", (e) => this.movePlayer(e, move1));
+
+      if (!move2) return;
+      if (
+        move2.classList.contains("barrier") ||
+        move2.classList.contains("player")
+      )
+        return;
+      move2.classList.add("highlight");
+      move2.addEventListener("click", (e) => this.movePlayer(e, move2));
+
+      if (!move3) return;
+      if (
+        move3.classList.contains("barrier") ||
+        move3.classList.contains("player")
+      )
+        return;
+      move3.classList.add("highlight");
+      move3.addEventListener("click", this.movePlayer);
+    };
+
+    availability("north");
+    availability("south");
+    availability("west");
+    availability("east");
+  };
+
+  movePlayer = (e) => {
+    console.log(e);
+    const { row, column } = e.target.dataset;
+
+    document.querySelector(
+      `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
+    ).innerHTML = "";
+
+    e.target.innerHTML = this.currentPlayer.image;
+
+    this.players[this.currentPlayer.id - 1].location = { row, column };
+
+    for (const elm of document.querySelectorAll(".highlight")) {
+      elm.classList.remove("highlight");
+    }
+
+    this.changeTurn();
   };
 
   detectTurn = () => {
@@ -156,13 +195,21 @@ class Game {
     setTimeout(this.highlightMoves, 500);
   };
 
-  //  changeTurn = () =>  {
-  //   if (currentPlayer === player1) {
-  //     currentPlayer = player1;
-  //   } else {
-  //     currentPlayer = player1;
-  //   }
-  // }
+  changeTurn = () => {
+    for (const elm of document.querySelectorAll(".sidebar")) {
+      elm.classList.remove("current");
+    }
+
+    //this.currentPlayer = this.players[this.currentPlayer.id]
+
+    if (this.currentPlayer.id === 1) {
+      this.currentPlayer = this.players[1];
+    } else {
+      this.currentPlayer = this.players[0];
+    }
+
+    this.detectTurn();
+  };
 }
 
 export default Game;

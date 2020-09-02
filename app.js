@@ -261,7 +261,6 @@ function movesCheck(squareRow, squareColumn, playerRow, playerColumn) {
 
 function movesCheck2() {
   const { row, column } = currentPlayer.location;
-  console.log({ row, column, currentPlayer });
   const north1 = document.querySelector(
     `[data-column="${column}"][data-row="${row - 1}"]`
   );
