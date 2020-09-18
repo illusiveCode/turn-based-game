@@ -1,10 +1,9 @@
-import { weapon0 } from "./assets";
-
 class Player {
-  constructor(name, image, lastId = 0) {
+  constructor(name, image, weapon, lastId = 0) {
     this.id = lastId + 1;
     this.name = name;
     this.image = image;
+    this.weapon = weapon;
   }
 
   // Generating players with their inital stats
@@ -14,8 +13,9 @@ class Player {
       name: this.name,
       image: `<img src="${this.image}" alt="${this.name}" />`,
       weapon: {
-        image: `<img src="${weapon0}" alt="" data-damage="10" />`,
+        image: `<img src="${this.weapon}" alt="" data-damage="10" />`,
         damage: 10,
+        oldWeapon: "",
       },
       lifePoints: 100,
       location: {

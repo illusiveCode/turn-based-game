@@ -89,13 +89,7 @@ body {
 
 aside {
   width: 150px;
-  background: rgb(40, 43, 41);
-  background: linear-gradient(
-    0deg,
-    rgba(40, 43, 41, 1) 0%,
-    rgba(99, 111, 104, 1) 44%,
-    rgba(198, 199, 111, 0.2721463585434174) 100%
-  );
+  background: tan;
   letter-spacing: 2px;
   border-radius: 10px;
 }

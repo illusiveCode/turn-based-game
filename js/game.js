@@ -42,12 +42,17 @@ class Game {
 
     this.detectTurn();
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 12; i++) {
       this.placeItem("barrier", `<img src=${barrier} alt="" />`);
     }
 
+    let damage = 10;
     for (const weapon of weapons) {
-      this.placeItem("weapon", `<img src=${weapon} alt="" />`);
+      damage += 5;
+      this.placeItem(
+        "weapon",
+        `<img src=${weapon} alt="" data-damage="${damage}" />`
+      );
     }
 
     this.players.map((player) => {
@@ -93,8 +98,8 @@ class Game {
         this.gridSquares[randomSquare].innerHTML = item.image;
       } else {
         this.gridSquares[randomSquare].innerHTML = item;
-        this.gridSquares[randomSquare].classList.add(cls);
       }
+      this.gridSquares[randomSquare].classList.add(cls);
     }
   };
 
@@ -166,21 +171,69 @@ class Game {
 
   movePlayer = (e) => {
     console.log(e);
-    const { row, column } = e.target.dataset;
-
-    document.querySelector(
+    const oldPosition = document.querySelector(
       `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
-    ).innerHTML = "";
+    );
+    //remove image from old location
+    if (this.currentPlayer.weapon.oldWeapon) {
+      oldPosition.innerHTML = this.currentPlayer.weapon.oldWeapon;
 
-    e.target.innerHTML = this.currentPlayer.image;
+      this.players[this.currentPlayer.id - 1].weapon = {
+        oldWeapon: "",
+      };
+    } else {
+      oldPosition.innerHTML = "";
+    }
 
-    this.players[this.currentPlayer.id - 1].location = { row, column };
+    oldPosition.classList.remove("player");
+    //add image to new location
 
+    if (e.target.nodeName === "IMG") {
+      const { row, column } = e.path[1].dataset;
+      e.path[1].innerHTML = this.currentPlayer.image;
+      e.path[1].classList.add("player");
+
+      const image = e.target.outerHTML;
+      const damage = e.target.dataset.damage;
+
+      document.querySelector(
+        `#weapon${this.currentPlayer.id}`
+      ).innerHTML = image;
+
+      document.querySelector(
+        `#damage${this.currentPlayer.id}`
+      ).innerHTML = damage;
+
+      //change player location
+      this.players[this.currentPlayer.id - 1].location = { row, column };
+
+      this.players[this.currentPlayer.id - 1].weapon = {
+        image,
+        damage,
+        oldWeapon: this.currentPlayer.weapon.image,
+      };
+    } else {
+      const { row, column } = e.target.dataset;
+      e.target.innerHTML = this.currentPlayer.image;
+      e.target.classList.add("player");
+      //change player location
+      this.players[this.currentPlayer.id - 1].location = { row, column };
+    }
+
+    //remove highlights of moves
     for (const elm of document.querySelectorAll(".highlight")) {
       elm.classList.remove("highlight");
     }
+    // for (const elm of document
+    //   .querySelectorAll(`#player${this.currentPlayer.id}`)
+    //   .classList.add("weapon"));
 
-    this.changeTurn();
+    // if (e) {
+    //   e.path[1].remove("weapon");
+    // } else {
+    //   this.currentPlayer.image;
+    // }
+    setTimeout(this.changeTurn, 500);
   };
 
   detectTurn = () => {
