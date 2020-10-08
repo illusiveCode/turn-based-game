@@ -99,6 +99,7 @@ class Game {
       } else {
         this.gridSquares[randomSquare].innerHTML = item;
       }
+
       this.gridSquares[randomSquare].classList.add(cls);
     }
   };
@@ -142,7 +143,7 @@ class Game {
       )
         return;
       move1.classList.add("highlight");
-      move1.addEventListener("click", (e) => this.movePlayer(e, move1));
+      move1.addEventListener("click", this.movePlayer);
 
       if (!move2) return;
       if (
@@ -151,7 +152,7 @@ class Game {
       )
         return;
       move2.classList.add("highlight");
-      move2.addEventListener("click", (e) => this.movePlayer(e, move2));
+      move2.addEventListener("click", this.movePlayer);
 
       if (!move3) return;
       if (
@@ -169,18 +170,94 @@ class Game {
     availability("east");
   };
 
+  detectRetaliation = (column, row) => {
+    const north = document.querySelector(
+      `[data-row="${row - 1}"][data-column="${column}"]`
+    );
+    const south = document.querySelector(
+      `[data-row="${Number(row) + 1}"][data-column="${column}"]`
+    );
+    const east = document.querySelector(
+      `[data-row="${row}"][data-column="${Number(column) + 1}"]`
+    );
+    const west = document.querySelector(
+      `[data-row="${row}"][data-column="${column - 1}"]`
+    );
+
+    if (north) {
+      if (north.classList.contains("player")) {
+        console.log("retaliation:", "north");
+        this.retaliation();
+      }
+    }
+
+    if (south) {
+      if (south.classList.contains("player")) {
+        console.log("retaliation:", "south");
+        this.retaliation();
+      }
+    }
+
+    if (east) {
+      if (east.classList.contains("player")) {
+        console.log("retaliation:", "east");
+        this.retaliation();
+      }
+    }
+
+    if (west) {
+      if (west.classList.contains("player")) {
+        console.log("retaliation:", "west");
+        this.retaliation();
+      }
+    }
+  };
+
+  retaliation = () => {
+    console.log("Start a fight");
+    // 1. find current player weapon damage
+    if (this.currentPlayer.id === 1) {
+      const health = this.players[1].shield
+        ? this.players[1].lifePoints - this.currentPlayer.weapon.damage / 2
+        : this.players[1].lifePoints - this.currentPlayer.weapon.damage;
+
+      this.players[1].lifePoints = health;
+
+      document.getElementById("health2").innerHTML = health;
+    } else {
+      const health = this.players[0].shield
+        ? this.players[0].lifePoints - this.currentPlayer.weapon.damage / 2
+        : this.players[0].lifePoints - this.currentPlayer.weapon.damage;
+
+      this.players[0].lifePoints = health;
+
+      document.getElementById("health1").innerHTML = health;
+    }
+
+    console.log(this.players);
+    // 2. detect if opponent has a shield up
+    // 3. use current players weapon damamge to decrease opponents health
+    // 4. if opponent has shield up then only 50% damage will be taken (if Statment)
+  };
+
   movePlayer = (e) => {
-    console.log(e);
+    const player = {
+      weapon: {
+        image: "currentWeapon",
+        damage: 10,
+        oldWeapon: "oldWeapon",
+      },
+    };
+
     const oldPosition = document.querySelector(
       `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
     );
+
     //remove image from old location
     if (this.currentPlayer.weapon.oldWeapon) {
       oldPosition.innerHTML = this.currentPlayer.weapon.oldWeapon;
 
-      this.players[this.currentPlayer.id - 1].weapon = {
-        oldWeapon: "",
-      };
+      this.players[this.currentPlayer.id - 1].weapon.oldWeapon = "";
     } else {
       oldPosition.innerHTML = "";
     }
@@ -188,8 +265,11 @@ class Game {
     oldPosition.classList.remove("player");
     //add image to new location
 
+    let column, row;
+
     if (e.target.nodeName === "IMG") {
-      const { row, column } = e.path[1].dataset;
+      column = e.path[1].dataset.column;
+      row = e.path[1].dataset.row;
       e.path[1].innerHTML = this.currentPlayer.image;
       e.path[1].classList.add("player");
 
@@ -213,7 +293,8 @@ class Game {
         oldWeapon: this.currentPlayer.weapon.image,
       };
     } else {
-      const { row, column } = e.target.dataset;
+      column = e.target.dataset.column;
+      row = e.target.dataset.row;
       e.target.innerHTML = this.currentPlayer.image;
       e.target.classList.add("player");
       //change player location
@@ -223,6 +304,9 @@ class Game {
     //remove highlights of moves
     for (const elm of document.querySelectorAll(".highlight")) {
       elm.classList.remove("highlight");
+      elm.removeEventListener("click", this.movePlayer);
+
+      // console.log($(elm));
     }
     // for (const elm of document
     //   .querySelectorAll(`#player${this.currentPlayer.id}`)
@@ -233,14 +317,11 @@ class Game {
     // } else {
     //   this.currentPlayer.image;
     // }
-    setTimeout(this.changeTurn, 500);
+    this.detectRetaliation(column, row);
+    this.changeTurn();
   };
 
   detectTurn = () => {
-    document.querySelectorAll(".sidebar").forEach((sidebar) => {
-      sidebar.classList.remove("current");
-    });
-
     document
       .querySelector(`#player${this.currentPlayer.id}`)
       .classList.add("current");
