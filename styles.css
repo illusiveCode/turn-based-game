@@ -238,3 +238,62 @@ h3 {
 .current {
   box-shadow: 0 0 20px red;
 }
+
+#retaliationModal,
+#retaliationModal::before {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#retaliationModal.open {
+  display: block;
+}
+
+#retaliationModal::before {
+  content: "";
+  background: rgba(0, 0, 0, 0.5);
+}
+#retaliationModal > div {
+  position: absolute;
+  background: rgb(6, 82, 150);
+  background: linear-gradient(
+    17deg,
+    rgba(6, 82, 150, 1) 0%,
+    rgba(5, 216, 250, 1) 61%,
+    rgba(15, 241, 255, 1) 100%
+  );
+  padding: 40px;
+  width: 300px;
+  margin-left: -150px;
+  margin-top: -154px;
+  top: 50%;
+  left: 50%;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+#retaliationModal button {
+  cursor: pointer;
+  border: 0;
+  color: black;
+  padding: 10px 20px;
+  letter-spacing: 2px;
+}
+
+#attack {
+  background: #ff0000;
+  margin-left: 3px;
+}
+
+#defend {
+  background-color: lightgreen;
+  margin-right: 3px;
+}
+
+.protected {
+  background-color: green !important;
+}

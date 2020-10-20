@@ -10,6 +10,7 @@
     />
     <title>Avengers Dissembled</title>
   </head>
+
   <body>
     <h1 class="game-title">Avengers Dissembled</h1>
 
@@ -37,7 +38,7 @@
         </div>
         <div class="box">
           <img src="./images/shield.png" alt="" />
-          <span class="value" id="shield1">protected</span>
+          <span class="value" id="shield1">Unprotected</span>
         </div>
       </aside>
       <div class="grid-container" id="game-board"></div>
@@ -65,11 +66,6 @@
       </aside>
     </div>
 
-    <section>
-      <p>Weapon 1</p>
-      <p>Weapon 2</p>
-    </section>
-
     <div id="rulesModal">
       <div class="content">
         <button id="closeRules">&times;</button>
@@ -84,6 +80,17 @@
           <li>Who ever has their health drop to 0 will lose the game.</li>
           <h3 class="gl">Good Luck!</h3>
         </ul>
+      </div>
+    </div>
+
+    <div id="retaliationModal">
+      <div>
+        <h2>The enemy has breached our grounds!</h2>
+        <p>Attack: You will experience full damage from the enemy.</p>
+        <p>Defend: You will experience 50% less damage from the enemy.</p>
+
+        <button id="defend">Defend</button>
+        <button id="attack">Attack</button>
       </div>
     </div>
 

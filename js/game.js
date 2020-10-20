@@ -7,13 +7,14 @@ class Game {
     this.currentPlayer = null;
   }
   // creating the function to reset the game
-  reset = () => {
+  reset = (players) => {
+    console.log("restarted");
     this.gridSquares.forEach((tile) => {
       tile.innerHTML = "";
       tile.removeAttribute("class");
     });
 
-    this.players.map((player) => {
+    players.map((player) => {
       document.querySelector(`#name${player.id}`).innerHTML = player.name;
 
       document.querySelector(`#health${player.id}`).innerHTML =
@@ -25,8 +26,7 @@ class Game {
       document.querySelector(`#damage${player.id}`).innerHTML =
         player.weapon.damage;
 
-      document.querySelector(`#shield${player.id}`).innerHTML = player.weapon
-        .shield
+      document.querySelector(`#shield${player.id}`).innerHTML = player.shield
         ? "Protected"
         : "Unprotected";
     });
@@ -34,8 +34,6 @@ class Game {
 
   // calling function to reset the game
   newGame = () => {
-    this.reset();
-
     this.currentPlayer = this.players[
       Math.floor(Math.random() * this.players.length)
     ];
@@ -93,7 +91,10 @@ class Game {
       this.placeItem(cls, item);
     } else {
       if (cls === "player") {
-        this.players[item.id - 1].location = { column, row };
+        this.players[item.id - 1].location = {
+          column,
+          row,
+        };
 
         this.gridSquares[randomSquare].innerHTML = item.image;
       } else {
@@ -187,28 +188,28 @@ class Game {
     if (north) {
       if (north.classList.contains("player")) {
         console.log("retaliation:", "north");
-        this.retaliation();
+        return true;
       }
     }
 
     if (south) {
       if (south.classList.contains("player")) {
         console.log("retaliation:", "south");
-        this.retaliation();
+        return true;
       }
     }
 
     if (east) {
       if (east.classList.contains("player")) {
         console.log("retaliation:", "east");
-        this.retaliation();
+        return true;
       }
     }
 
     if (west) {
       if (west.classList.contains("player")) {
         console.log("retaliation:", "west");
-        this.retaliation();
+        return true;
       }
     }
   };
@@ -235,9 +236,6 @@ class Game {
     }
 
     console.log(this.players);
-    // 2. detect if opponent has a shield up
-    // 3. use current players weapon damamge to decrease opponents health
-    // 4. if opponent has shield up then only 50% damage will be taken (if Statment)
   };
 
   movePlayer = (e) => {
@@ -285,7 +283,10 @@ class Game {
       ).innerHTML = damage;
 
       //change player location
-      this.players[this.currentPlayer.id - 1].location = { row, column };
+      this.players[this.currentPlayer.id - 1].location = {
+        row,
+        column,
+      };
 
       this.players[this.currentPlayer.id - 1].weapon = {
         image,
@@ -298,26 +299,50 @@ class Game {
       e.target.innerHTML = this.currentPlayer.image;
       e.target.classList.add("player");
       //change player location
-      this.players[this.currentPlayer.id - 1].location = { row, column };
+      this.players[this.currentPlayer.id - 1].location = {
+        row,
+        column,
+      };
     }
 
-    //remove highlights of moves
+    //remove highlights of moves and click eventlistner from previous availbale moves
     for (const elm of document.querySelectorAll(".highlight")) {
       elm.classList.remove("highlight");
       elm.removeEventListener("click", this.movePlayer);
-
-      // console.log($(elm));
     }
-    // for (const elm of document
-    //   .querySelectorAll(`#player${this.currentPlayer.id}`)
-    //   .classList.add("weapon"));
 
-    // if (e) {
-    //   e.path[1].remove("weapon");
-    // } else {
-    //   this.currentPlayer.image;
-    // }
-    this.detectRetaliation(column, row);
+    const hadRetaliation = this.detectRetaliation(column, row);
+
+    if (hadRetaliation) {
+      this.retaliation();
+      const retaliationModal = document.querySelector("#retaliationModal")
+        .classList;
+      retaliationModal.add("open");
+      let shieldStatus = document.querySelector(
+        `#shield${this.currentPlayer.id}`
+      );
+
+      document.querySelector("#defend").addEventListener("click", () => {
+        this.players[this.currentPlayer.id - 1].shield = true;
+        retaliationModal.remove("open");
+        document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
+          "Protected";
+        document
+          .querySelector(`#shield${this.currentPlayer.id}`)
+          .classList.add("protected");
+      });
+
+      document.querySelector("#attack").addEventListener("click", () => {
+        this.retaliation();
+        retaliationModal.remove("open");
+
+        document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
+          "Unprotected";
+        document
+          .querySelector(`#shield${this.currentPlayer.id}`)
+          .classList.remove("protected");
+      });
+    }
     this.changeTurn();
   };
 

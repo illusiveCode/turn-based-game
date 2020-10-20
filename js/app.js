@@ -17,6 +17,7 @@ Game.generateMap();
 const game = new Game([player1, player2]);
 
 document.querySelector("#newGame").addEventListener("click", () => {
+  game.reset([player1, player2]);
   game.newGame();
 });
 
