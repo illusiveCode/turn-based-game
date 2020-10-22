@@ -305,45 +305,65 @@ class Game {
       };
     }
 
-    //remove highlights of moves and click eventlistner from previous availbale moves
-    for (const elm of document.querySelectorAll(".highlight")) {
-      elm.classList.remove("highlight");
-      elm.removeEventListener("click", this.movePlayer);
-    }
-
-    const hadRetaliation = this.detectRetaliation(column, row);
-
-    if (hadRetaliation) {
-      this.retaliation();
-      const retaliationModal = document.querySelector("#retaliationModal")
-        .classList;
-      retaliationModal.add("open");
-      let shieldStatus = document.querySelector(
-        `#shield${this.currentPlayer.id}`
-      );
-
-      document.querySelector("#defend").addEventListener("click", () => {
-        this.players[this.currentPlayer.id - 1].shield = true;
-        retaliationModal.remove("open");
-        document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
-          "Protected";
-        document
-          .querySelector(`#shield${this.currentPlayer.id}`)
-          .classList.add("protected");
-      });
-
-      document.querySelector("#attack").addEventListener("click", () => {
+    const hadRetaliation = () => {
+      if (this.detectRetaliation(column, row)) {
         this.retaliation();
-        retaliationModal.remove("open");
 
-        document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
-          "Unprotected";
-        document
-          .querySelector(`#shield${this.currentPlayer.id}`)
-          .classList.remove("protected");
-      });
+        const retaliationModal = document.querySelector("#retaliationModal")
+          .classList;
+
+        setInterval(() => retaliationModal.add("open"), 1000);
+
+        let shieldStatus = document.querySelector(
+          `#shield${this.currentPlayer.id}`
+        );
+
+        document.querySelector("#defend").addEventListener("click", () => {
+          this.players[this.currentPlayer.id - 1].shield = true;
+          retaliationModal.remove("open");
+          document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
+            "Protected";
+          document
+            .querySelector(`#shield${this.currentPlayer.id}`)
+            .classList.add("protected");
+
+          this.players[this.currentPlayer.id - 1].shield = true;
+        });
+
+        document.querySelector("#attack").addEventListener("click", () => {
+          this.retaliation();
+
+          retaliationModal.remove("open");
+
+          document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
+            "Unprotected";
+          document
+            .querySelector(`#shield${this.currentPlayer.id}`)
+            .classList.remove("protected");
+
+          this.players[this.currentPlayer.id - 1].shield = true;
+
+          //remove highlights of moves and click eventlistner from previous availbale moves
+          for (const elm of document.querySelectorAll(".highlight")) {
+            elm.classList.remove("highlight");
+            elm.removeEventListener("click", this.movePlayer);
+          }
+
+          this.changeTurn();
+          hadRetaliation();
+        });
+      }
+    };
+
+    if (!hadRetaliation()) {
+      this.changeTurn();
+
+      //remove highlights of moves and click eventlistner from previous availbale moves
+      for (const elm of document.querySelectorAll(".highlight")) {
+        elm.classList.remove("highlight");
+        elm.removeEventListener("click", this.movePlayer);
+      }
     }
-    this.changeTurn();
   };
 
   detectTurn = () => {
