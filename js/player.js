@@ -14,7 +14,7 @@ class Player {
       image: `<img src="${this.image}" alt="${this.name}" />`,
       weapon: {
         image: `<img src="${this.weapon}" alt="" data-damage="10" />`,
-        damage: 10,
+        damage: 50,
         oldWeapon: "",
       },
       lifePoints: 100,

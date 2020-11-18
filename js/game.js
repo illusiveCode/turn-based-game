@@ -7,14 +7,15 @@ class Game {
     this.currentPlayer = null;
   }
   // creating the function to reset the game
-  reset = (players) => {
+  reset = () => {
     console.log("restarted");
+
     this.gridSquares.forEach((tile) => {
       tile.innerHTML = "";
       tile.removeAttribute("class");
     });
 
-    players.map((player) => {
+    this.players.map((player) => {
       document.querySelector(`#name${player.id}`).innerHTML = player.name;
 
       document.querySelector(`#health${player.id}`).innerHTML =
@@ -26,14 +27,16 @@ class Game {
       document.querySelector(`#damage${player.id}`).innerHTML =
         player.weapon.damage;
 
-      document.querySelector(`#shield${player.id}`).innerHTML = player.shield
-        ? "Protected"
-        : "Unprotected";
+      // document.querySelector(`#shield${player.id}`).innerHTML = player.shield
+      //   ? "Protected"
+      //   : "Unprotected";
     });
   };
 
   // calling function to reset the game
   newGame = () => {
+    this.reset();
+
     this.currentPlayer = this.players[
       Math.floor(Math.random() * this.players.length)
     ];
@@ -63,6 +66,8 @@ class Game {
     let col = 0;
     let row = 1;
 
+    document.querySelector("#game-board").innerHTML = "";
+
     for (let column = 0; column < 81; column++) {
       col++;
       document.querySelector(
@@ -79,6 +84,7 @@ class Game {
   placeItem = (cls, item) => {
     const randomSquare = Math.floor(Math.random() * this.gridSquares.length);
 
+    console.log({ randomSquare, tiles: this.gridSquares });
     const classList = this.gridSquares[randomSquare].classList;
 
     const { column, row } = this.gridSquares[randomSquare].dataset;
@@ -91,12 +97,34 @@ class Game {
       this.placeItem(cls, item);
     } else {
       if (cls === "player") {
+        if (this.players[0].location.row > 0) {
+          const c = this.players[0].location.column;
+          const r = this.players[0].location.row;
+
+          // console.log({ r, c });
+
+          if (r == row || c == column) {
+            // console.log({ row, column });
+
+            return this.placeItem(cls, item);
+          }
+        }
+
         this.players[item.id - 1].location = {
           column,
           row,
         };
 
         this.gridSquares[randomSquare].innerHTML = item.image;
+      } else if (cls === "barrier") {
+        const c = document.querySelector(`.barrier[data-column="${column}"]`);
+        const r = document.querySelector(`.barrier[data-row="${row}"]`);
+
+        // console.log({ r, c });
+
+        // if (r && c) return this.placeItem(cls, item);
+
+        this.gridSquares[randomSquare].innerHTML = item;
       } else {
         this.gridSquares[randomSquare].innerHTML = item;
       }
@@ -108,7 +136,7 @@ class Game {
   // highlight tiles for valid moves for current player
   highlightMoves = () => {
     const { row, column } = this.currentPlayer.location;
-    console.log("highlightMoves", row, column);
+
     const element = (direction, num) => {
       switch (direction) {
         case "north":
@@ -215,7 +243,6 @@ class Game {
   };
 
   retaliation = () => {
-    console.log("Start a fight");
     // 1. find current player weapon damage
     if (this.currentPlayer.id === 1) {
       const health = this.players[1].shield
@@ -235,18 +262,29 @@ class Game {
       document.getElementById("health1").innerHTML = health;
     }
 
-    console.log(this.players);
+    let isGameOver = false;
+
+    for (const player of this.players) {
+      console.log({ player });
+      if (Number(player.lifePoints) <= 0) {
+        document.querySelector("#gameOverModal").classList.add("open");
+
+        document.querySelector("#newGame2").addEventListener("click", () => {
+          document.querySelector("#gameOverModal").classList.remove("open");
+
+          this.newGame();
+        });
+
+        console.log("Game Over...");
+
+        isGameOver = true;
+      }
+    }
+
+    return isGameOver;
   };
 
   movePlayer = (e) => {
-    const player = {
-      weapon: {
-        image: "currentWeapon",
-        damage: 10,
-        oldWeapon: "oldWeapon",
-      },
-    };
-
     const oldPosition = document.querySelector(
       `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
     );
@@ -305,64 +343,83 @@ class Game {
       };
     }
 
-    const hadRetaliation = () => {
-      if (this.detectRetaliation(column, row)) {
+    if (this.detectRetaliation(column, row)) {
+      const isGameOver = this.retaliation();
+
+      if (isGameOver) return;
+
+      const retaliationModal = document.querySelector("#retaliationModal")
+        .classList;
+      if (this.currentPlayer.id === 1) {
+        document.querySelector(
+          "#retaliationModal h2"
+        ).innerHTML = this.players[1].name;
+        document.querySelector(
+          "#retaliationModal p:first-of-type"
+        ).innerHTML = `You have just received an attack from your opponent.`;
+        document.querySelector(
+          "#retaliationModal p:last-of-type"
+        ).innerHTML = `Your health has been decreased <strong>${this.players[1].weapon.damage} points</strong>.`;
+      } else {
+        document.querySelector(
+          "#retaliationModal h2"
+        ).innerHTML = this.players[0].name;
+        document.querySelector(
+          "#retaliationModal p:first-of-type"
+        ).innerHTML = `You have just received an attack from your opponent.`;
+        document.querySelector(
+          "#retaliationModal p:last-of-type"
+        ).innerHTML = `Your health has been decreased <strong>${this.players[0].weapon.damage} points</strong>.`;
+      }
+
+      setInterval(() => retaliationModal.add("open"), 500);
+
+      const shieldStatus = document.querySelector(
+        `#shield${this.currentPlayer.id}`
+      );
+
+      document.querySelector("#defend").addEventListener("click", () => {
+        if (this.currentPlayer.id === 1) {
+          this.players[1].shield = true;
+          shieldStatus.innerHTML = "Protected";
+          document
+            .querySelector(`#shield${this.players[1].id}`)
+            .classList.add("protected");
+        } else {
+          this.players[0].shield = true;
+          shieldStatus.innerHTML = "Protected";
+          document
+            .querySelector(`#shield${this.players[0].id}`)
+            .classList.add("protected");
+        }
+
+        retaliationModal.remove("open");
+
+        this.changeTurn();
+      });
+
+      document.querySelector("#attack").addEventListener("click", () => {
         this.retaliation();
 
-        const retaliationModal = document.querySelector("#retaliationModal")
-          .classList;
+        retaliationModal.remove("open");
 
-        setInterval(() => retaliationModal.add("open"), 1000);
+        shieldStatus.innerHTML = "Unprotected";
+        document
+          .querySelector(`#shield${this.currentPlayer.id}`)
+          .classList.remove("protected");
 
-        let shieldStatus = document.querySelector(
-          `#shield${this.currentPlayer.id}`
-        );
+        this.players[this.currentPlayer.id - 1].shield = true;
 
-        document.querySelector("#defend").addEventListener("click", () => {
-          this.players[this.currentPlayer.id - 1].shield = true;
-          retaliationModal.remove("open");
-          document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
-            "Protected";
-          document
-            .querySelector(`#shield${this.currentPlayer.id}`)
-            .classList.add("protected");
-
-          this.players[this.currentPlayer.id - 1].shield = true;
-        });
-
-        document.querySelector("#attack").addEventListener("click", () => {
-          this.retaliation();
-
-          retaliationModal.remove("open");
-
-          document.querySelector(`#shield${this.currentPlayer.id}`).innerHTML =
-            "Unprotected";
-          document
-            .querySelector(`#shield${this.currentPlayer.id}`)
-            .classList.remove("protected");
-
-          this.players[this.currentPlayer.id - 1].shield = true;
-
-          //remove highlights of moves and click eventlistner from previous availbale moves
-          for (const elm of document.querySelectorAll(".highlight")) {
-            elm.classList.remove("highlight");
-            elm.removeEventListener("click", this.movePlayer);
-          }
-
-          this.changeTurn();
-          hadRetaliation();
-        });
-      }
-    };
-
-    if (!hadRetaliation()) {
+        this.changeTurn();
+      });
+    } else {
       this.changeTurn();
+    }
 
-      //remove highlights of moves and click eventlistner from previous availbale moves
-      for (const elm of document.querySelectorAll(".highlight")) {
-        elm.classList.remove("highlight");
-        elm.removeEventListener("click", this.movePlayer);
-      }
+    //remove highlights of moves and click eventlistner from previous availbale moves
+    for (const elm of document.querySelectorAll(".highlight")) {
+      elm.classList.remove("highlight");
+      elm.removeEventListener("click", this.movePlayer);
     }
   };
 

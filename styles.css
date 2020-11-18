@@ -35,7 +35,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: url(https://media.playstation.com/is/image/SCEA/marvels-avengers-normal-hero-background-01-ps4-us-10jul19?$native_nt$);
+  background: url(images/bg.jpg);
   background-size: cover;
   animation: animate 0.3s;
 }
@@ -139,7 +139,7 @@ aside {
   position: fixed;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
   align-items: center;
   display: none;
 }
@@ -232,31 +232,37 @@ h3 {
   color: white;
   padding: 4px 8px;
   width: 90%;
-  background-color: gray;
+  background: rgb(6, 82, 150);
+  background: linear-gradient(
+    17deg,
+    rgba(6, 82, 150, 1) 0%,
+    rgba(5, 216, 250, 1) 61%,
+    rgba(15, 241, 255, 1) 100%
+  );
+  border-radius: 10px;
 }
 
 .current {
   box-shadow: 0 0 20px red;
 }
 
-#retaliationModal,
-#retaliationModal::before {
+#gameOverModal,
+#retaliationModal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   display: none;
+  /* backdrop-filter: blur(10px); */
 }
 
+#gameOverModal.open,
 #retaliationModal.open {
   display: block;
 }
 
-#retaliationModal::before {
-  content: "";
-  background: rgba(0, 0, 0, 0.5);
-}
+#gameOverModal > div,
 #retaliationModal > div {
   position: absolute;
   background: rgb(6, 82, 150);
@@ -282,6 +288,10 @@ h3 {
   color: black;
   padding: 10px 20px;
   letter-spacing: 2px;
+}
+
+#gameOverModal button {
+  margin: 25px 0;
 }
 
 #attack {
