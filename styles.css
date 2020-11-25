@@ -253,18 +253,24 @@ h3 {
   left: 0;
   width: 100%;
   height: 100%;
-  display: none;
+  display: flex;
+  opacity: 0;
+  z-index: -1;
+  transition: all 0.5s ease;
+  transform: scale(0);
   /* backdrop-filter: blur(10px); */
 }
 
 #gameOverModal.open,
 #retaliationModal.open {
-  display: block;
+  opacity: 1;
+  transform: scale(1);
+  z-index: 999999;
 }
 
 #gameOverModal > div,
 #retaliationModal > div {
-  position: absolute;
+  margin: auto;
   background: rgb(6, 82, 150);
   background: linear-gradient(
     17deg,
@@ -273,13 +279,14 @@ h3 {
     rgba(15, 241, 255, 1) 100%
   );
   padding: 40px;
-  width: 300px;
-  margin-left: -150px;
-  margin-top: -154px;
-  top: 50%;
-  left: 50%;
+  width: 320px;
   text-align: center;
   letter-spacing: 2px;
+}
+
+#retaliationModal img {
+  width: 60px;
+  height: auto;
 }
 
 #retaliationModal button {

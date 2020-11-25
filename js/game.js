@@ -15,7 +15,11 @@ class Game {
       tile.removeAttribute("class");
     });
 
+    document.querySelector("#gameOverModal").classList.remove("open");
+
     this.players.map((player) => {
+
+      console.log(player)
       document.querySelector(`#name${player.id}`).innerHTML = player.name;
 
       document.querySelector(`#health${player.id}`).innerHTML =
@@ -27,9 +31,7 @@ class Game {
       document.querySelector(`#damage${player.id}`).innerHTML =
         player.weapon.damage;
 
-      // document.querySelector(`#shield${player.id}`).innerHTML = player.shield
-      //   ? "Protected"
-      //   : "Unprotected";
+      document.querySelector(`#shield${player.id}`).innerHTML = "Unprotected";
     });
   };
 
@@ -63,16 +65,17 @@ class Game {
 
   // creating the map of the game
   static generateMap = () => {
+    const map = document.querySelector("#game-board");
+
     let col = 0;
     let row = 1;
 
-    document.querySelector("#game-board").innerHTML = "";
+    map.innerHTML = "";
 
     for (let column = 0; column < 81; column++) {
       col++;
-      document.querySelector(
-        "#game-board"
-      ).innerHTML += `<div class='grid-item' data-row=${row} data-column=${col}></div>`;
+
+      map.innerHTML += `<div class='grid-item' data-row=${row} data-column=${col}></div>`;
 
       if (col === 9) {
         col = 0;
@@ -84,7 +87,7 @@ class Game {
   placeItem = (cls, item) => {
     const randomSquare = Math.floor(Math.random() * this.gridSquares.length);
 
-    console.log({ randomSquare, tiles: this.gridSquares });
+    // console.log({ randomSquare, tiles: this.gridSquares });
     const classList = this.gridSquares[randomSquare].classList;
 
     const { column, row } = this.gridSquares[randomSquare].dataset;
@@ -199,92 +202,76 @@ class Game {
     availability("east");
   };
 
-  detectRetaliation = (column, row) => {
-    const north = document.querySelector(
-      `[data-row="${row - 1}"][data-column="${column}"]`
-    );
-    const south = document.querySelector(
-      `[data-row="${Number(row) + 1}"][data-column="${column}"]`
-    );
-    const east = document.querySelector(
-      `[data-row="${row}"][data-column="${Number(column) + 1}"]`
-    );
-    const west = document.querySelector(
-      `[data-row="${row}"][data-column="${column - 1}"]`
-    );
 
-    if (north) {
-      if (north.classList.contains("player")) {
-        console.log("retaliation:", "north");
-        return true;
-      }
-    }
-
-    if (south) {
-      if (south.classList.contains("player")) {
-        console.log("retaliation:", "south");
-        return true;
-      }
-    }
-
-    if (east) {
-      if (east.classList.contains("player")) {
-        console.log("retaliation:", "east");
-        return true;
-      }
-    }
-
-    if (west) {
-      if (west.classList.contains("player")) {
-        console.log("retaliation:", "west");
-        return true;
-      }
-    }
-  };
-
-  retaliation = () => {
-    // 1. find current player weapon damage
-    if (this.currentPlayer.id === 1) {
-      const health = this.players[1].shield
-        ? this.players[1].lifePoints - this.currentPlayer.weapon.damage / 2
-        : this.players[1].lifePoints - this.currentPlayer.weapon.damage;
-
-      this.players[1].lifePoints = health;
-
-      document.getElementById("health2").innerHTML = health;
-    } else {
-      const health = this.players[0].shield
-        ? this.players[0].lifePoints - this.currentPlayer.weapon.damage / 2
-        : this.players[0].lifePoints - this.currentPlayer.weapon.damage;
-
-      this.players[0].lifePoints = health;
-
-      document.getElementById("health1").innerHTML = health;
-    }
-
-    let isGameOver = false;
-
-    for (const player of this.players) {
-      console.log({ player });
-      if (Number(player.lifePoints) <= 0) {
-        document.querySelector("#gameOverModal").classList.add("open");
-
-        document.querySelector("#newGame2").addEventListener("click", () => {
-          document.querySelector("#gameOverModal").classList.remove("open");
-
-          this.newGame();
-        });
-
-        console.log("Game Over...");
-
-        isGameOver = true;
-      }
-    }
-
-    return isGameOver;
-  };
 
   movePlayer = (e) => {
+    const oldPosition = document.querySelector(
+      `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
+    );
+
+    const newPosition = e.target.nodeName === "IMG" ? e.path[1] : e.target;
+    const player = this.players[this.currentPlayer.id - 1]
+
+    //remove image from old location
+    if (this.currentPlayer.weapon.oldWeapon) {
+      oldPosition.innerHTML = this.currentPlayer.weapon.oldWeapon;
+      oldPosition.classList.add("weapon");
+
+      player.weapon.oldWeapon = null;
+    } else {
+      oldPosition.innerHTML = "";
+    }
+
+    oldPosition.classList.remove("player");
+    //add image to new location
+
+    const {row, column} = newPosition.dataset;
+
+
+    if (e.target.nodeName === "IMG") {
+      newPosition.innerHTML = this.currentPlayer.image;
+      newPosition.classList.add("player");
+
+      const image = e.target.outerHTML;
+      const damage = e.target.dataset.damage;
+
+      document.querySelector(
+        `#weapon${this.currentPlayer.id}`
+      ).innerHTML = image;
+
+      document.querySelector(
+        `#damage${this.currentPlayer.id}`
+      ).innerHTML = damage;
+
+      //change player location
+      player.location = { row, column, };
+
+      player.weapon = { image, damage, oldWeapon: this.currentPlayer.weapon.image, };
+    } else {
+      newPosition.innerHTML = this.currentPlayer.image;
+      newPosition.classList.add("player");
+      //change player location
+     player.location = { row, column, };
+    }
+
+    this.players[this.currentPlayer.id - 1] = player;
+
+
+
+    if (this.detectRetaliation(column, row)) {
+      this.retaliation();
+    } else {
+      this.changeTurn();
+    }
+
+    //remove highlights of moves and click eventlistner from previous availbale moves
+    for (const elm of document.querySelectorAll(".highlight")) {
+      elm.classList.remove("highlight");
+      elm.removeEventListener("click", this.movePlayer);
+    }
+  };
+
+  movePlayer2 = (e) => {
     const oldPosition = document.querySelector(
       `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
     );
@@ -422,6 +409,186 @@ class Game {
       elm.removeEventListener("click", this.movePlayer);
     }
   };
+
+  detectRetaliation = (column, row) => {
+    console.log({detectRetaliation: {column, row}})
+    const north = document.querySelector(
+      `[data-row="${row - 1}"][data-column="${column}"]`
+    );
+    const south = document.querySelector(
+      `[data-row="${Number(row) + 1}"][data-column="${column}"]`
+    );
+    const east = document.querySelector(
+      `[data-row="${row}"][data-column="${Number(column) + 1}"]`
+    );
+    const west = document.querySelector(
+      `[data-row="${row}"][data-column="${column - 1}"]`
+    );
+
+    if (north && north.classList.contains("player")) return true;
+    if (south && south.classList.contains("player")) return true;
+    if (east && east.classList.contains("player")) return true;
+    if (west && west.classList.contains("player")) return true;
+  };
+
+  retaliation = () => {
+    console.log('In retaliation...');
+
+    const retaliationModal = document.querySelector("#retaliationModal");
+
+    // Hide retaliation modal in case it was still opened
+
+    retaliationModal.classList.add('open');
+
+
+
+
+
+    for (const player of this.players) {
+      if (Number(player.lifePoints) <= 0) {
+
+        retaliationModal.classList.remove('open');
+
+        return this.gameOver();
+
+      }
+    }
+
+    if (this.currentPlayer.id === 1) {
+      document.querySelector(
+        "#retaliationModal .avatar"
+      ).innerHTML = this.players[1].image;
+      // document.querySelector(
+      //   "#retaliationModal h2"
+      // ).innerHTML = this.players[1].name;
+      // document.querySelector(
+      //   "#retaliationModal p:first-of-type"
+      // ).innerHTML = `You have just received an attack from your opponent.`;
+      // document.querySelector(
+      //   "#retaliationModal p:last-of-type"
+      // ).innerHTML = `Your health has been decreased <strong>${this.players[1].weapon.damage} points</strong>.`;
+    } else {
+      document.querySelector(
+        "#retaliationModal .avatar"
+      ).innerHTML = this.players[0].image;
+
+      // document.querySelector(
+      //   "#retaliationModal h2"
+      // ).innerHTML = this.players[0].name;
+      // document.querySelector(
+      //   "#retaliationModal p:first-of-type"
+      // ).innerHTML = `You have just received an attack from your opponent.`;
+      // document.querySelector(
+      //   "#retaliationModal p:last-of-type"
+      // ).innerHTML = `Your health has been decreased <strong>${this.players[0].weapon.damage} points</strong>.`;
+    }
+
+    // Defend?
+    document.querySelector("#defend").addEventListener("click", () => {
+
+      const attacker =  this.currentPlayer;
+
+      this.changeTurn();
+
+      const opponent = this.currentPlayer;
+
+
+      const shieldStatus = document.querySelector(
+        `#shield${opponent.id}`
+      );
+
+      opponent.shield = true;
+      shieldStatus.innerHTML = "Protected";
+      
+      shieldStatus.classList.add("protected");
+
+
+    const health = opponent.shield
+      ? opponent.lifePoints - attacker.weapon.damage / 2
+      : opponent.lifePoints - attacker.weapon.damage;
+
+    opponent.lifePoints = health;
+
+    document.querySelector(`#health${opponent.id}`).innerHTML = health;
+
+
+      retaliationModal.classList.remove("open");
+
+      // Apply opponent changes to its object in this.players
+      this.players[this.currentPlayer.id - 1] = opponent;
+
+    });
+
+  
+    // Attack?
+    document.querySelector("#attack").addEventListener("click", () => {
+      const attacker =  this.currentPlayer;
+
+      this.changeTurn();
+
+      const opponent = this.currentPlayer;
+
+      retaliationModal.classList.remove("open");
+
+      setTimeout(this.retaliation, 1000);
+
+
+      const shieldStatus = document.querySelector(
+        `#shield${opponent.id}`
+      );
+
+      opponent.shield = false;
+      shieldStatus.innerHTML = "Unprotected";
+      
+      shieldStatus.classList.remove("protected");
+
+
+      const health = opponent.shield
+        ? opponent.lifePoints - attacker.weapon.damage / 2
+        : opponent.lifePoints - attacker.weapon.damage;
+
+      opponent.lifePoints = health;
+
+      document.querySelector(`#health${opponent.id}`).innerHTML = health;
+
+
+    
+      // Apply opponent changes to its object in this.players
+      this.players[this.currentPlayer.id - 1] = opponent;
+
+    });
+
+
+
+  };
+
+  gameOver = () => {
+
+    document.querySelector("#gameOverModal").classList.add("open");
+
+    document.querySelector("#newGame2").addEventListener("click", () => {
+      document.querySelector("#gameOverModal").classList.remove("open");
+
+      this.newGame();
+    });
+
+    if (this.currentPlayer.id === 1) {
+
+      document.querySelector(
+        "#gameOverModal p:first-of-type"
+      ).innerHTML = `${this.players[0].name}, you are the winner :)`;
+      document.querySelector(
+        "#gameOverModal p:last-of-type"
+      ).innerHTML = `${this.players[1].name}, you have lost :(`;
+    } else {
+      document.querySelector(
+        "#gameOverModal p:first-of-type"
+      ).innerHTML = `${this.players[1].name}, you are the winner :)`;
+      document.querySelector(
+        "#gameOverModal p:last-of-type"
+      ).innerHTML = `${this.players[0].name}, you have lost :(`;
+    }
+  }
 
   detectTurn = () => {
     document

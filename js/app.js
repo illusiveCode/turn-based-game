@@ -5,7 +5,7 @@ import { capShield, ironman, weapons, weapon1, weapon0 } from "./assets";
 
 Game.generateMap();
 
-document.querySelector("#newGame").addEventListener("click", () => {
+const newGame = () => {
   const player1 = new Player("Ironman", ironman, weapon1).generate();
 
   const player2 = new Player(
@@ -14,13 +14,19 @@ document.querySelector("#newGame").addEventListener("click", () => {
     weapon0,
     player1.id
   ).generate();
+  
 
   Game.generateMap();
+
+  console.log(player1, player2)
 
   const game = new Game([player1, player2]);
 
   game.newGame();
-});
+};
+
+document.querySelector("#newGame").addEventListener("click", newGame);
+document.querySelector("#newGame2").addEventListener("click", newGame);
 
 document.querySelector("#rules").addEventListener("click", () => {
   document.querySelector("#rulesModal").classList.add("open");
