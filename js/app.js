@@ -6,6 +6,8 @@ import { capShield, ironman, weapons, weapon1, weapon0 } from "./assets";
 Game.generateMap();
 
 const newGame = () => {
+  document.querySelector("#gameOverModal").classList.remove("open");
+
   const player1 = new Player("Ironman", ironman, weapon1).generate();
 
   const player2 = new Player(
@@ -14,11 +16,8 @@ const newGame = () => {
     weapon0,
     player1.id
   ).generate();
-  
 
   Game.generateMap();
-
-  console.log(player1, player2)
 
   const game = new Game([player1, player2]);
 

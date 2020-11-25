@@ -18,8 +18,6 @@ class Game {
     document.querySelector("#gameOverModal").classList.remove("open");
 
     this.players.map((player) => {
-
-      console.log(player)
       document.querySelector(`#name${player.id}`).innerHTML = player.name;
 
       document.querySelector(`#health${player.id}`).innerHTML =
@@ -202,15 +200,13 @@ class Game {
     availability("east");
   };
 
-
-
   movePlayer = (e) => {
     const oldPosition = document.querySelector(
       `[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`
     );
 
     const newPosition = e.target.nodeName === "IMG" ? e.path[1] : e.target;
-    const player = this.players[this.currentPlayer.id - 1]
+    const player = this.players[this.currentPlayer.id - 1];
 
     //remove image from old location
     if (this.currentPlayer.weapon.oldWeapon) {
@@ -225,8 +221,7 @@ class Game {
     oldPosition.classList.remove("player");
     //add image to new location
 
-    const {row, column} = newPosition.dataset;
-
+    const { row, column } = newPosition.dataset;
 
     if (e.target.nodeName === "IMG") {
       newPosition.innerHTML = this.currentPlayer.image;
@@ -244,19 +239,21 @@ class Game {
       ).innerHTML = damage;
 
       //change player location
-      player.location = { row, column, };
+      player.location = { row, column };
 
-      player.weapon = { image, damage, oldWeapon: this.currentPlayer.weapon.image, };
+      player.weapon = {
+        image,
+        damage,
+        oldWeapon: this.currentPlayer.weapon.image,
+      };
     } else {
       newPosition.innerHTML = this.currentPlayer.image;
       newPosition.classList.add("player");
       //change player location
-     player.location = { row, column, };
+      player.location = { row, column };
     }
 
     this.players[this.currentPlayer.id - 1] = player;
-
-
 
     if (this.detectRetaliation(column, row)) {
       this.retaliation();
@@ -411,7 +408,6 @@ class Game {
   };
 
   detectRetaliation = (column, row) => {
-    console.log({detectRetaliation: {column, row}})
     const north = document.querySelector(
       `[data-row="${row - 1}"][data-column="${column}"]`
     );
@@ -432,25 +428,19 @@ class Game {
   };
 
   retaliation = () => {
-    console.log('In retaliation...');
+    console.log("In retaliation...");
 
     const retaliationModal = document.querySelector("#retaliationModal");
 
     // Hide retaliation modal in case it was still opened
 
-    retaliationModal.classList.add('open');
-
-
-
-
+    retaliationModal.classList.add("open");
 
     for (const player of this.players) {
       if (Number(player.lifePoints) <= 0) {
-
-        retaliationModal.classList.remove('open');
+        retaliationModal.classList.remove("open");
 
         return this.gameOver();
-
       }
     }
 
@@ -485,63 +475,18 @@ class Game {
 
     // Defend?
     document.querySelector("#defend").addEventListener("click", () => {
-
-      const attacker =  this.currentPlayer;
+      const attacker = this.currentPlayer;
 
       this.changeTurn();
 
       const opponent = this.currentPlayer;
 
-
-      const shieldStatus = document.querySelector(
-        `#shield${opponent.id}`
-      );
+      const shieldStatus = document.querySelector(`#shield${opponent.id}`);
 
       opponent.shield = true;
       shieldStatus.innerHTML = "Protected";
-      
+
       shieldStatus.classList.add("protected");
-
-
-    const health = opponent.shield
-      ? opponent.lifePoints - attacker.weapon.damage / 2
-      : opponent.lifePoints - attacker.weapon.damage;
-
-    opponent.lifePoints = health;
-
-    document.querySelector(`#health${opponent.id}`).innerHTML = health;
-
-
-      retaliationModal.classList.remove("open");
-
-      // Apply opponent changes to its object in this.players
-      this.players[this.currentPlayer.id - 1] = opponent;
-
-    });
-
-  
-    // Attack?
-    document.querySelector("#attack").addEventListener("click", () => {
-      const attacker =  this.currentPlayer;
-
-      this.changeTurn();
-
-      const opponent = this.currentPlayer;
-
-      retaliationModal.classList.remove("open");
-
-      setTimeout(this.retaliation, 1000);
-
-
-      const shieldStatus = document.querySelector(
-        `#shield${opponent.id}`
-      );
-
-      opponent.shield = false;
-      shieldStatus.innerHTML = "Unprotected";
-      
-      shieldStatus.classList.remove("protected");
-
 
       const health = opponent.shield
         ? opponent.lifePoints - attacker.weapon.damage / 2
@@ -551,44 +496,63 @@ class Game {
 
       document.querySelector(`#health${opponent.id}`).innerHTML = health;
 
+      retaliationModal.classList.remove("open");
 
-    
       // Apply opponent changes to its object in this.players
       this.players[this.currentPlayer.id - 1] = opponent;
-
     });
 
+    // Attack?
+    document.querySelector("#attack").addEventListener("click", () => {
+      const attacker = this.currentPlayer;
 
+      this.changeTurn();
 
+      const opponent = this.currentPlayer;
+
+      retaliationModal.classList.remove("open");
+
+      setTimeout(this.retaliation, 1000);
+
+      const shieldStatus = document.querySelector(`#shield${opponent.id}`);
+
+      opponent.shield = false;
+      shieldStatus.innerHTML = "Unprotected";
+
+      shieldStatus.classList.remove("protected");
+
+      const health = opponent.shield
+        ? opponent.lifePoints - attacker.weapon.damage / 2
+        : opponent.lifePoints - attacker.weapon.damage;
+
+      opponent.lifePoints = health;
+
+      document.querySelector(`#health${opponent.id}`).innerHTML = health;
+
+      // Apply opponent changes to its object in this.players
+      this.players[this.currentPlayer.id - 1] = opponent;
+    });
   };
 
   gameOver = () => {
-
     document.querySelector("#gameOverModal").classList.add("open");
 
-    document.querySelector("#newGame2").addEventListener("click", () => {
-      document.querySelector("#gameOverModal").classList.remove("open");
-
-      this.newGame();
-    });
-
     if (this.currentPlayer.id === 1) {
-
-      document.querySelector(
-        "#gameOverModal p:first-of-type"
-      ).innerHTML = `${this.players[0].name}, you are the winner :)`;
-      document.querySelector(
-        "#gameOverModal p:last-of-type"
-      ).innerHTML = `${this.players[1].name}, you have lost :(`;
-    } else {
       document.querySelector(
         "#gameOverModal p:first-of-type"
       ).innerHTML = `${this.players[1].name}, you are the winner :)`;
       document.querySelector(
         "#gameOverModal p:last-of-type"
       ).innerHTML = `${this.players[0].name}, you have lost :(`;
+    } else {
+      document.querySelector(
+        "#gameOverModal p:first-of-type"
+      ).innerHTML = `${this.players[0].name}, you are the winner :)`;
+      document.querySelector(
+        "#gameOverModal p:last-of-type"
+      ).innerHTML = `${this.players[1].name}, you have lost :(`;
     }
-  }
+  };
 
   detectTurn = () => {
     document
