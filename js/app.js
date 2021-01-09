@@ -17,7 +17,11 @@ const newGame = () => {
     player1.id
   ).generate();
 
+
+
   Game.generateMap();
+
+  console.log(player1, player2)
 
   const game = new Game([player1, player2]);
 
