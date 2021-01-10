@@ -120,6 +120,7 @@ aside {
 }
 .grid-container > div.highlight {
   box-shadow: inset 0 0 5px red;
+  cursor: pointer;
 }
 .grid-container > div img {
   width: 90%;
@@ -283,7 +284,7 @@ h3 {
     rgba(15, 241, 255, 1) 100%
   );
   padding: 40px;
-  width: 320px;
+  width: 380px;
   text-align: center;
   letter-spacing: 2px;
 }
@@ -317,4 +318,11 @@ h3 {
 
 .protected {
   background-color: green !important;
+}
+
+.dot {
+  background-color: red;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
 }

@@ -89,7 +89,7 @@ class Game {
 
     const getObstacleDistance = (row, column) => {
 
-      console.log({row, column})
+      // console.log({row, column})
 
       const elm = document.querySelector(`[data-row="${row}"][data-column="${column}"]`);
 
@@ -137,54 +137,82 @@ class Game {
 
     }
 
+    const getPlayerDistance = (row, column) => {
+
+      if(this.players[0].location.row > 0) {
+      
+        const p1c = +this.players[0].location.column;
+        const p1r = +this.players[0].location.row;
+
+        const yDistance = Math.abs(p1r - row);
+        const xDistance = Math.abs(p1c - column)
+
+        // Check if P1 is in same column and less than 4 steps away from P2
+        if(p1c === column && yDistance <= 4) {
+          // Check if there's a barrier between two players
+          for (let i = 1; i <= yDistance; i++) {
+            if(p1r > row) {
+              const y = document.querySelector(`[data-row="${p1r - i}"][data-column="${p1c}"]`);
+              if(y && y.classList.contains("barrier")) return false  
+            }else{
+              const y = document.querySelector(`[data-row="${p1r + i}"][data-column="${p1c}"]`);
+              if(y && y.classList.contains("barrier")) return false
+            }
+          }
+
+          return true;
+        }
+
+        // Check if P1 is in same row and less than 4 steps away from P2
+        if(p1r === row && xDistance <= 4) {
+
+          // Check if there's a barrier between two players
+          for (let i = 1; i <= xDistance; i++) {
+            if(p1c > column) {
+              const x = document.querySelector(`[data-row="${p1r}"][data-column="${p1c - i}"]`);
+              if(x && x.classList.contains("barrier")) return false
+            }else{
+              const x = document.querySelector(`[data-row="${p1r}"][data-column="${p1c + i}"]`);
+              if(x && x.classList.contains("barrier")) return false
+            }
+          }
+
+          return true;
+        }
+
+        if((xDistance === 1 && yDistance <= 4) || (yDistance === 1 && xDistance <= 3)) return true;
+
+      }
+    }
+
     if (this.gridSquares[randomSquare].classList.contains("occupied")) return this.placeItem(cls, item);
 
 
-      if (cls === "player") {
-        if (this.players[0].location.row > 0) {
-          const c1 = this.players[0].location.column;
-          const r1 = this.players[0].location.row;
+    if (cls === "player") {
 
-          // console.log({ r, c });
+      if (getPlayerDistance(+row, +column)) return this.placeItem(cls, item);      
 
-          // if (this.getPlayerDistance(Number(r1), Number(c1), Number(row), Number(column))) {
-          //   // console.log({ row, column });
-          //   console.log("matched...")
-          //   return this.placeItem(cls, item);
-          // }
-        }
+      this.players[item.id - 1].location = {column, row};
 
-        this.players[item.id - 1].location = {
-          column,
-          row,
-        };
+      this.gridSquares[randomSquare].innerHTML = item.image;  
 
-        this.gridSquares[randomSquare].innerHTML = item.image;
-      } else if (cls === "barrier") {
-        
-        if(getObstacleDistance(+row, +column)) return this.placeItem(cls, item); 
+    } else if (cls === "barrier") {
+      
+      if(getObstacleDistance(+row, +column)) return this.placeItem(cls, item); 
 
-        // console.log({ r, c });
+      // console.log({ r, c });
 
-        // if (r && c) return this.placeItem(cls, item);
+      // if (r && c) return this.placeItem(cls, item);
 
-        this.gridSquares[randomSquare].innerHTML = item;
-      } else {
-        this.gridSquares[randomSquare].innerHTML = item;
-      }
+      this.gridSquares[randomSquare].innerHTML = item;
+    } else {
+      this.gridSquares[randomSquare].innerHTML = item;
+    }
 
-      this.gridSquares[randomSquare].classList.add(cls);
-      this.gridSquares[randomSquare].classList.add("occupied");
+    this.gridSquares[randomSquare].classList.add(cls);
+    this.gridSquares[randomSquare].classList.add("occupied");
     
   };
-
-  getPlayerDistance = (r1, c1, r2, c2) => {
-    if(Math.abs(r1 - r2) <= 4) return true; // can be at same row but not 4 spots or less
-    if(Math.abs(c1 - c2) <= 4) return true;
-
-    if((r1 - 1)  ) return true;
-  
-  }
 
   // highlight tiles for valid moves for current player
   highlightMoves = () => {
@@ -361,7 +389,39 @@ class Game {
 
     // Defend?
     const defend = () => {
+      document.querySelector("#attack").removeEventListener("click", attack);
+      document.querySelector("#run").removeEventListener("click", run)
+      const health = opponent.lifePoints - attacker.weapon.damage / 2;
+
+      this.players[opponent.id - 1].lifePoints = health;
+      console.log("defend", opponent.id, health);
+
+      document.querySelector(`#health${opponent.id}`).innerHTML = health;
+
+      const shieldStatus = document.querySelector(`#shield${opponent.id}`);
+      shieldStatus.innerHTML = "Protected";
+      shieldStatus.classList.add("protected");
+
+      document.querySelector(`#health${opponent.id}`).innerHTML = health;
+
+      retaliationModal.classList.remove("open");
+
+      // Remove highlights
+      for (const tile of document.querySelectorAll(".highlight")) {
+        tile.classList.remove("highlight");
+        tile.removeEventListener("click", this.movePlayer);
+      }
+
+      if (this.gameOver(opponent, attacker)) return;
+
+      this.retaliation();
+
+    }
+
+    // Defend and Run?
+    const run = () => {
       document.querySelector("#attack").removeEventListener("click", attack)
+      document.querySelector("#defend").removeEventListener("click", defend)
       const health = opponent.lifePoints - attacker.weapon.damage / 2;
 
       this.players[opponent.id - 1].lifePoints = health;
@@ -387,12 +447,10 @@ class Game {
 
       this.highlightMoves();
     }
-    document.querySelector("#defend").addEventListener("click", defend, {once: true }
-    );
-
     // Attack?
     const attack = () => {
-      document.querySelector("#defend").removeEventListener("click", defend)
+      document.querySelector("#defend").removeEventListener("click", defend);
+      document.querySelector("#run").removeEventListener("click", run)
       const health = opponent.lifePoints - attacker.weapon.damage;
       console.log("attack", opponent.id, health);
 
@@ -416,10 +474,10 @@ class Game {
       this.retaliation();
     };
 
-    document.querySelector("#attack").addEventListener(
-      "click", attack,
-      { once: true }
-    );
+    document.querySelector("#attack").addEventListener("click", attack, { once: true });
+    document.querySelector("#defend").addEventListener("click", defend, { once: true });
+    document.querySelector("#run").addEventListener("click", run, { once: true });
+
   };
 
   gameOver = (opponent, attacker) => {

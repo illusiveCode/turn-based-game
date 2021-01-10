@@ -21,14 +21,15 @@
     <div class="game">
       <aside id="player1" class="sidebar">
         <div>
+          <h4 id="name1" class="box">Player 1</h4>
+
           <span class="ironman"
             ><img class="avatar" src="./images/ironman2.png"
           /></span>
-          <h4 id="name1" class="box">Player 1</h4>
         </div>
         <div class="box">
           <h4>Health</h4>
-          <span id="health1">0</span>
+          <span id="health1" class="value">0</span>
         </div>
         <div class="box">
           <div id="weapon1">
@@ -44,14 +45,14 @@
       <div class="grid-container" id="game-board"></div>
       <aside id="player2" class="sidebar">
         <div>
+          <h4 id="name2" class="box">Player 2</h4>
           <span class="america"
             ><img class="avatar" src="./images/Captain_America.png"
           /></span>
-          <h4 id="name2" class="box">Player 2</h4>
         </div>
         <div class="box">
           <h4>Health</h4>
-          <span id="health2">0</span>
+          <span id="health2" class="value">0</span>
         </div>
         <div class="box">
           <div id="weapon2">
@@ -92,6 +93,7 @@
         </p>
         <p>Defend: You will experience 50% less damage from the enemy.</p>
 
+        <button id="run">Run</button>
         <button id="defend">Defend</button>
         <button id="attack">Attack</button>
       </div>
