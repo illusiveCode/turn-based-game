@@ -1,39 +1,52 @@
 import Player from "./player";
 import Game from "./game";
 
-import { capShield, ironman, weapons, weapon1, weapon0 } from "./assets";
+import { capShield, ironman, weapon0, weapon1, weapon2, weapon3 } from "./assets";
+
+const weapons = [weapon0, weapon1, weapon2, weapon3];
 
 Game.generateMap();
 
 const newGame = () => {
-  document.querySelector("#gameOverModal").classList.remove("open");
+    $("#gameOverModal").removeClass("open");
 
-  const player1 = new Player("Ironman", ironman, weapon1).generate();
+    const player1 = new Player("Ironman", ironman, weapon1).generate();
 
-  const player2 = new Player(
-    "Cap America",
-    capShield,
-    weapon0,
-    player1.id
-  ).generate();
+    const player2 = new Player("Cap America", capShield, weapon0, player1.id).generate();
 
+    Game.generateMap();
 
+    // console.log(player1, player2)
 
-  Game.generateMap();
+    const game = new Game([player1, player2]);
 
-  // console.log(player1, player2)
+    game.newGame();
 
-  const game = new Game([player1, player2]);
+    const wDetails = [
+        { name: "Space", damage: 10 },
+        { name: "Power", damage: 10 },
+        { name: "Soul", damage: 20 },
+        { name: "Gauntlet", damage: 30 },
+    ];
 
-  game.newGame();
+    $("#legend").html("<div></div>");
+
+    for (let i = 0; i < weapons.length; i++) {
+        $("#legend > div").append(`
+    <div>
+    <span>${wDetails[i].name}</span>
+      <img src=${weapons[i]} alt="" />
+      <span>${wDetails[i].damage}</span>
+    </div>`);
+    }
 };
 
-document.querySelector("#newGame").addEventListener("click", newGame);
-document.querySelector("#newGame2").addEventListener("click", newGame);
+$("#newGame").on("click", newGame);
+$("#newGame2").on("click", newGame);
 
-document.querySelector("#rules").addEventListener("click", () => {
-  document.querySelector("#rulesModal").classList.add("open");
+$("#rules").on("click", () => {
+    $("#rulesModal").addClass("open");
 });
-document.querySelector("#closeRules").addEventListener("click", () => {
-  document.querySelector("#rulesModal").classList.remove("open");
+$("#closeRules").on("click", () => {
+    $("#rulesModal").removeClass("open");
 });
