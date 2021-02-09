@@ -7,47 +7,7 @@ class Game {
         this.currentPlayer = null;
     }
 
-    /*FUNCTION TO RESET THE GAME*/
-    reset = () => {
-        document.querySelector("#gameOverModal").classList.remove("open");
-
-        this.players.map((player) => {
-            document.querySelector(`#name${player.id}`).innerHTML = player.name;
-
-            document.querySelector(`#health${player.id}`).innerHTML = player.lifePoints;
-
-            document.querySelector(`#weapon${player.id}`).innerHTML = player.weapon.image;
-
-            document.querySelector(`#damage${player.id}`).innerHTML = player.weapon.damage;
-
-            document.querySelector(`#shield${player.id}`).innerHTML = "Unprotected";
-        });
-    };
-
-    // calling function to reset the game
-    newGame = () => {
-        this.reset();
-
-        for (let i = 0; i < 12; i++) {
-            this.placeItem("barrier", `<img src=${barrier} alt="" />`);
-        }
-
-        let damage = 10;
-        for (const weapon of weapons) {
-            damage += 10;
-            this.placeItem("weapon", `<img src=${weapon} alt="" data-damage="${damage}" />`);
-        }
-
-        this.players.map((player) => {
-            this.placeItem("player", player);
-        });
-
-        this.currentPlayer = this.players[Math.floor(Math.random() * this.players.length)];
-
-        this.detectTurn();
-    };
-
-    // creating the map of the game
+    // CREATING THE MAP 
     static generateMap = () => {
         const map = document.querySelector("#game-board");
 
@@ -68,6 +28,52 @@ class Game {
         }
     };
 
+    /*FUNCTION TO RESET THE GAME*/
+    reset = () => {
+        document.querySelector("#gameOverModal").classList.remove("open");
+
+        this.players.map((player) => {
+            document.querySelector(`#name${player.id}`).innerHTML = player.name;
+
+            document.querySelector(`#health${player.id}`).innerHTML = player.lifePoints;
+
+            document.querySelector(`#weapon${player.id}`).innerHTML = player.weapon.image;
+
+            document.querySelector(`#damage${player.id}`).innerHTML = player.weapon.damage;
+
+            document.querySelector(`#shield${player.id}`).innerHTML = "Unprotected";
+        });
+    };
+
+    newGame = () => {
+        this.reset();
+
+        // PLACING BARRIERS 
+
+        for (let i = 0; i < 12; i++) {
+            this.placeItem("barrier", `<img src=${barrier} alt="" />`);
+        }
+
+        // SETTING WEAPON DAMAGE AND PLACING ON MAP
+
+        let damage = 10;
+        for (const weapon of weapons) {
+            damage += 10;
+            this.placeItem("weapon", `<img src=${weapon} alt="" data-damage="${damage}" />`);
+        }
+
+       // PLACING PLAYERS ON MAP
+
+        this.players.map((player) => {
+            this.placeItem("player", player);
+        });
+
+        this.currentPlayer = this.players[Math.floor(Math.random() * this.players.length)];
+
+        this.detectTurn();
+    };
+   
+    // FUNCTION TO PLACE THE ITEMS 
     placeItem = (cls, item) => {
         const randomSquare = Math.floor(Math.random() * this.gridSquares.length);
 
@@ -150,7 +156,7 @@ class Game {
                     return true;
                 }
 
-                if ((xDistance === 1 && yDistance <= 4) || (yDistance === 1 && xDistance <= 3)) return true;
+                if ((xDistance === 1 && yDistance <= 4) || (yDistance === 1 && xDistance <= 4)) return true;
             }
         };
 
@@ -164,10 +170,6 @@ class Game {
             this.gridSquares[randomSquare].innerHTML = item.image;
         } else if (cls === "barrier") {
             if (getObstacleDistance(+row, +column)) return this.placeItem(cls, item);
-
-            // console.log({ r, c });
-
-            // if (r && c) return this.placeItem(cls, item);
 
             this.gridSquares[randomSquare].innerHTML = item;
         } else {
@@ -197,6 +199,7 @@ class Game {
             }
         };
 
+        // Checking which moves are available for the players to make
         const availability = (direction) => {
             const move1 = element(direction, 1);
             const move2 = element(direction, 2);
@@ -224,6 +227,7 @@ class Game {
         availability("east");
     };
 
+    // FUNCTION TO MOVE PLAYERS LOCATION 
     movePlayer = (e) => {
         const oldPosition = document.querySelector(`[data-row="${this.currentPlayer.location.row}"][data-column="${this.currentPlayer.location.column}"]`);
 
@@ -285,6 +289,7 @@ class Game {
         }
     };
 
+    // DETECT WHERE THE ENEMY IS
     detectRetaliation = (column, row) => {
         const north = document.querySelector(`[data-row="${row - 1}"][data-column="${column}"]`);
         const south = document.querySelector(`[data-row="${Number(row) + 1}"][data-column="${column}"]`);
@@ -322,7 +327,6 @@ class Game {
             const health = opponent.lifePoints - attacker.weapon.damage / 2;
 
             this.players[opponent.id - 1].lifePoints = health;
-            console.log("defend", opponent.id, health);
 
             document.querySelector(`#health${opponent.id}`).innerHTML = health;
 
@@ -352,7 +356,6 @@ class Game {
             const health = opponent.lifePoints - attacker.weapon.damage / 2;
 
             this.players[opponent.id - 1].lifePoints = health;
-            console.log("defend", opponent.id, health);
 
             document.querySelector(`#health${opponent.id}`).innerHTML = health;
 
@@ -362,6 +365,7 @@ class Game {
 
             document.querySelector(`#health${opponent.id}`).innerHTML = health;
 
+            // CLOSE THE RETALIATION MODAL 
             retaliationModal.classList.remove("open");
 
             // REMOVE HIGHLIGHTS
@@ -376,10 +380,11 @@ class Game {
         };
         // ATTACK?
         const attack = () => {
+
+            // Remove eventlisteners to defend or run
             document.querySelector("#defend").removeEventListener("click", defend);
             document.querySelector("#run").removeEventListener("click", run);
             const health = opponent.lifePoints - attacker.weapon.damage;
-            console.log("attack", opponent.id, health);
 
             retaliationModal.classList.remove("open");
 
@@ -406,11 +411,14 @@ class Game {
         document.querySelector("#run").addEventListener("click", run, { once: true });
     };
 
+    // WINNER OR LOSER
     gameOver = (opponent, attacker) => {
         if (opponent.lifePoints <= 0) {
+
+            // IF HEALTH EQUAL TO 0 OR BELOW THEN RETALIATION MODAL CLOSES AND OPENS THE GAMEOVER MODAL 
             document.querySelector("#retaliationModal").classList.remove("open");
             document.querySelector("#gameOverModal").classList.add("open");
-
+           // DECLARING THE WINNER.
             document.querySelector("#gameOverModal p:first-of-type").innerHTML = `${attacker.name}, you are the winner 🎊`;
             document.querySelector("#gameOverModal p:last-of-type").innerHTML = `${opponent.name}, you are the loser 👎`;
 
@@ -418,6 +426,7 @@ class Game {
         }
     };
 
+    // DETECTING THE PLAYERS TURN 
     detectTurn = () => {
         document.querySelector(`#player${this.currentPlayer.id}`).classList.add("current");
 

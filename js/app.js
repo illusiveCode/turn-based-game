@@ -16,10 +16,9 @@ const newGame = () => {
 
     Game.generateMap();
 
-    // console.log(player1, player2)
-
     const game = new Game([player1, player2]);
 
+    //Start new game
     game.newGame();
 
     const wDetails = [
